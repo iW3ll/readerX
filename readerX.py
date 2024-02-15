@@ -1,39 +1,34 @@
+import os
 from PIL import Image
-import exifread
+from PIL.ExifTags import TAGS
 
-def extract_location_info(image_path):
-   
-    with open(image_path, 'rb') as f:
-       
-        img = Image.open(f)
+img_file = r""
+image = Image.open(img_file)
 
-        
-        exif_data = img._getexif()
+exif = image._getexif()
 
-       
-        if exif_data is not None:
-           
-            tags = exifread.process_file(f)
+if exif is not None:
+    exif_dict = {}
 
-            if 'GPS GPSLatitude' in tags and 'GPS GPSLongitude' in tags:
-                latitude = tags['GPS GPSLatitude']
-                longitude = tags['GPS GPSLongitude']
+    for tag, value in exif.items():
+        if tag in TAGS:
+            exif_dict[TAGS[tag]] = value
 
-                lat_decimal = latitude.values[0] + latitude.values[1] / 60 + latitude.values[2] / 3600
-                lon_decimal = longitude.values[0] + longitude.values[1] / 60 + longitude.values[2] / 3600
+    print("Full EXIF data:", exif_dict)
 
-                return lat_decimal, lon_decimal
-            else:
-                return None
-        else:
-            print("No EXIF data found.")
-            return None
-
-
-image_path = 'path/to/your/image.jpg'
-location_info = extract_location_info(image_path)
-
-if location_info:
-    print(f"Latitude: {location_info[0]}, Longitude: {location_info[1]}")
+    if "GPSInfo" in exif_dict:
+        geo_coordinate = "{0} {1} {2:.2f} {3}, {4} {5} {6:.2f} {7}".format(
+            exif_dict["GPSInfo"][2][0][0],
+            exif_dict["GPSInfo"][2][1][0],
+            exif_dict["GPSInfo"][2][2][0] / exif_dict["GPSInfo"][2][2][1],
+            exif_dict["GPSInfo"][1],
+            exif_dict["GPSInfo"][4][0][0],
+            exif_dict["GPSInfo"][4][1][0],
+            exif_dict["GPSInfo"][4][2][0] / exif_dict["GPSInfo"][4][2][1],
+            exif_dict["GPSInfo"][3],
+        )
+        print("GPS coordinates:", geo_coordinate)
+    else:
+        print("No GPS information found in EXIF data.")
 else:
-    print("No location information found.")
+    print("No EXIF data found in the image.")
