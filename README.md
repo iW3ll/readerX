@@ -4,8 +4,10 @@ read metadata from image
 
 ## Requirements
 
-•Python 3  
-- install packages in requirements.txt using pip.  
+• Python 3  
+• Pillow  
+
+Install packages in requirements.txt using pip.  
 ``pip install -r requirements.txt``
 
 ## How to use
